@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Displaying the canvas</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+<script src="../pixi/pixi.js"></script>
+<script type="text/javascript">
+    //Create a Pixi Application
+    const app = new PIXI.Application({
+            width: 256,
+            height: 256,
+            antialias: true,
+            transparent: false,
+            resolution: 1
+        }
+    );
+
+    //Add the canvas that Pixi automatically created for you to the HTML document
+    document.body.appendChild(app.view);
+
+    //If you want to make the canvas fill the entire window, you can apply this
+    //app.resizeTo = window;
+</script>
+</body>
+</html>

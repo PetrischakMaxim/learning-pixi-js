@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Using aliases</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+<script src="../pixi/pixi.js"></script>
+<script>
+
+    //Aliases
+    const Application = PIXI.Application,
+        loader = PIXI.Loader.shared,
+        resources = PIXI.Loader.shared.resources,
+        Sprite = PIXI.Sprite;
+
+    const app = new Application({
+            width: 256,
+            height: 256,
+            antialias: true,
+            transparent: false,
+            resolution: 1,
+        }
+    );
+
+    document.body.appendChild(app.view);
+
+    loader
+        .add("../images/cat.png")
+        .load(setup);
+
+    function setup() {
+        const cat = new Sprite(resources["../images/cat.png"].texture);
+        app.stage.addChild(cat);
+    }
+
+</script>
+</body>
+</html>

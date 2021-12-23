@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Loading progress</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+<script src="../pixi/pixi.js"></script>
+<script>
+
+    const Application = PIXI.Application,
+        Container = PIXI.Container,
+        loader = PIXI.Loader.shared,
+        resources = PIXI.Loader.shared.resources,
+        TextureCache = PIXI.utils.TextureCache,
+        Sprite = PIXI.Sprite;
+
+    const app = new Application({
+            width: 256,
+            height: 256,
+            antialias: true,
+            transparent: false,
+            resolution: 1
+        }
+    );
+
+    document.body.appendChild(app.view);
+
+    loader.onProgress.add(loadProgressHandler);
+
+    loader
+        .add([
+            "../images/cat.png",
+            "../images/blob.png",
+            "../images/explorer.png"
+        ])
+        .load(setup);
+
+    function loadProgressHandler(loader, resource) {
+        console.log("loading: " + resource.url);
+        console.log("progress: " + loader.progress + "%");
+    }
+
+    function setup() {
+        console.log("setup");
+
+        //Create the sprites
+        const cat = new Sprite(resources["../images/cat.png"].texture),
+            blob = new Sprite(resources["../images/blob.png"].texture),
+            explorer = new Sprite(resources["../images/explorer.png"].texture);
+
+        //Add the sprites to the stage
+        app.stage.addChild(cat);
+        app.stage.addChild(blob);
+        app.stage.addChild(explorer);
+
+        //Position the sprites
+        blob.position.set(50, 150);
+        explorer.position.set(128, 128);
+    }
+</script>
+</body>
+</html>

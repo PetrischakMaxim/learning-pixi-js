@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Make a sprite from an image</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+<script src="../pixi/pixi.js"></script>
+<script>
+
+    const app = new PIXI.Application({
+            width: 256,
+            height: 256,
+            antialias: true,
+            transparent: false,
+            resolution: 1
+        }
+    );
+
+    document.body.appendChild(app.view);
+
+    PIXI.Loader.shared
+        .add("../images/cat.png")
+        .load(setup);
+
+    // Assigning a name to a loading file
+    // PIXI.Loader.shared.add("catImage", "images/cat.png").load(setup);
+    // const spite = new PIXI.Sprite(PIXI.Loader.shared.resources.catImage.texture);
+
+    function setup() {
+        const texture = PIXI.utils.TextureCache["../images/cat.png"];
+        const spite = new PIXI.Sprite(texture);
+        app.stage.addChild(spite);
+    }
+</script>
+</body>
+</html>
