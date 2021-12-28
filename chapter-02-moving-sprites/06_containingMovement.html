@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Containing Movement Inside a Fixed Area</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+<script src="../pixi/pixi.js"></script>
+<script>
+
+    const Application = PIXI.Application,
+        loader = PIXI.Loader.shared,
+        resources = PIXI.Loader.shared.resources,
+        TextureCache = PIXI.utils.TextureCache,
+        Sprite = PIXI.Sprite;
+
+    const app = new Application({
+            width: 256,
+            height: 256,
+            antialias: true,
+            resolution: 1
+        }
+    );
+
+    document.body.appendChild(app.view);
+
+    loader
+        .add("../images/cat.png")
+        .load(setup);
+
+    let cat, state;
+
+    function setup() {
+
+        cat = new Sprite(resources["../images/cat.png"].texture);
+        cat.y = 96;
+        cat.vx = 0;
+        cat.vy = 0;
+        cat.accelerationX = 0;
+        cat.accelerationY = 0;
+        cat.frictionX = 1;
+        cat.frictionY = 1;
+        cat.speed = 0.2;
+        cat.drag = 0.98;
+        app.stage.addChild(cat);
+
+        //Set the game state
+        state = play;
+
+        //Start the game loop
+        app.ticker.add((delta) => gameLoop(delta));
+    }
+
+    function gameLoop(delta) {
+        state(delta);
+    }
+
+    function play(delta) {
+        cat.vx += cat.accelerationX;
+        cat.vy += cat.accelerationY;
+        cat.vx *= cat.frictionX;
+        cat.vy *= cat.frictionY;
+        cat.x += cat.vx;
+        cat.y += cat.vy;
+
+        const collision =  contain(
+            cat,
+            {
+                x: 0,
+                y: 0,
+                width: app.view.width,
+                height: app.view.height //`height`
+            }
+        );
+
+        if (collision) {
+            //Reverse the sprite's `vx` value if it hits the left or right
+            if (collision.has("left") || collision.has("right")){
+                cat.vx = -cat.vx;
+            }
+            //Reverse the sprite's `vy` value if it hits the top or bottom
+            if (collision.has("top") || collision.has("bottom")){
+                cat.vy = -cat.vy;
+            }
+            return;
+        }
+    }
+
+    function contain(sprite, container) {
+        let collision = new Set();
+        //Left
+        if (sprite.x < container.x) {
+            sprite.x = container.x;
+            collision.add("left");
+        }
+
+        //Top
+        if (sprite.y < container.y) {
+            sprite.y = container.y;
+            collision.add("top");
+        }
+        //Right
+        if (sprite.x + sprite.width > container.width) {
+            sprite.x = container.width - sprite.width;
+            collision.add("right");
+        }
+        //Bottom
+        if (sprite.y + sprite.height > container.height) {
+            sprite.y = container.height - sprite.height;
+            collision.add("bottom");
+        }
+        //If there were no collisions, set `collision` to `undefined`
+        if (collision.size === 0) collision = undefined;
+        //Return the `collision` value
+        return collision;
+    }
+
+</script>
+</body>
+</html>

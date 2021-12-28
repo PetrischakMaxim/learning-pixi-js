@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Keyboard movement</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+<script src="../pixi/pixi.js"></script>
+<script>
+
+    const Application = PIXI.Application,
+        loader = PIXI.Loader.shared,
+        resources = PIXI.Loader.shared.resources,
+        TextureCache = PIXI.utils.TextureCache,
+        Sprite = PIXI.Sprite;
+
+    const app = new Application({
+            width: 256,
+            height: 256,
+            antialias: true,
+            resolution: 1
+        }
+    );
+
+    document.body.appendChild(app.view);
+
+    loader
+        .add("../images/cat.png")
+        .load(setup);
+
+    let cat, state;
+
+    function setup() {
+
+        cat = new Sprite(resources["../images/cat.png"].texture);
+        cat.y = 96;
+        cat.vx = 0;
+        cat.vy = 0;
+        cat.accelerationX = 0;
+        cat.accelerationY = 0;
+        cat.frictionX = 1;
+        cat.frictionY = 1;
+        cat.speed = 0.2;
+        cat.drag = 0.98;
+        app.stage.addChild(cat);
+
+        const left = keyboard(37),
+            up = keyboard(38),
+            right = keyboard(39),
+            down = keyboard(40);
+
+        left.press = () => {
+            cat.accelerationX = -cat.speed;
+            cat.frictionX = 1;
+        };
+        left.release = () => {
+            if (!right.isDown) {
+                cat.accelerationX = 0;
+                cat.frictionX = cat.drag;
+            }
+        };
+
+        up.press = () => {
+            cat.accelerationY = -cat.speed;
+            cat.frictionY = 1;
+        };
+        up.release = () => {
+            if (!down.isDown) {
+                cat.accelerationY = 0;
+                cat.frictionY = cat.drag;
+            }
+        };
+
+        right.press = () => {
+            cat.accelerationX = cat.speed;
+            cat.frictionX = 1;
+        };
+        right.release = () => {
+            if (!left.isDown) {
+                cat.accelerationX = 0;
+                cat.frictionX = cat.drag;
+            }
+        };
+
+        down.press = () => {
+            cat.accelerationY = cat.speed;
+            cat.frictionY = 1;
+        };
+        down.release = () => {
+            if (!up.isDown) {
+                cat.accelerationY = 0;
+                cat.frictionY = cat.drag;
+            }
+        };
+
+        //Set the game state
+        state = play;
+
+        //Start the game loop
+        app.ticker.add((delta) => gameLoop(delta));
+    }
+
+    function gameLoop(delta) {
+        state(delta);
+    }
+
+    function play(delta) {
+        //Apply acceleration by adding the acceleration to the sprite's velocity
+        cat.vx += cat.accelerationX;
+        cat.vy += cat.accelerationY;
+        //Apply friction by multiplying sprite's velocity by the friction
+        cat.vx *= cat.frictionX;
+        cat.vy *= cat.frictionY;
+        //Apply the velocity to the sprite's position to make it move
+        cat.x += cat.vx;
+        cat.y += cat.vy;
+
+        cat.vy += 0.1;
+    }
+
+    //The `keyboard` helper function
+    function keyboard(keyCode) {
+        const key = {};
+        key.code = keyCode;
+        key.isDown = false;
+        key.isUp = true;
+        key.press = undefined;
+        key.release = undefined;
+        //The `downHandler`
+        key.downHandler = (event) => {
+            if (event.keyCode === key.code) {
+                if (key.isUp && key.press) {
+                    key.press();
+                }
+                key.isDown = true;
+                key.isUp = false;
+            }
+            event.preventDefault();
+        };
+
+        //The `upHandler`
+        key.upHandler = (event) => {
+            if (event.keyCode === key.code) {
+                if (key.isDown && key.release) {
+                    key.release();
+                }
+                key.isDown = false;
+                key.isUp = true;
+            }
+            event.preventDefault();
+        };
+
+        //Attach event listeners
+        window.addEventListener("keydown", key.downHandler.bind(key), false);
+        window.addEventListener("keyup", key.upHandler.bind(key), false);
+        return key;
+    }
+
+</script>
+</body>
+</html>

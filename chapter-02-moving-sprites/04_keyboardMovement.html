@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Keyboard movement</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+<script src="../pixi/pixi.js"></script>
+<script>
+
+    const Application = PIXI.Application,
+        loader = PIXI.Loader.shared,
+        resources = PIXI.Loader.shared.resources,
+        TextureCache = PIXI.utils.TextureCache,
+        Sprite = PIXI.Sprite;
+
+    const app = new Application({
+            width: 256,
+            height: 256,
+            antialias: true,
+            resolution: 1
+        }
+    );
+
+    document.body.appendChild(app.view);
+
+    loader
+        .add("../images/cat.png")
+        .load(setup);
+
+    let cat, state;
+
+    function setup() {
+
+        cat = new Sprite(resources["../images/cat.png"].texture);
+        cat.y = 96;
+        cat.vx = 0;
+        cat.vy = 0;
+        app.stage.addChild(cat);
+
+        const left = keyboard(37),
+            up = keyboard(38),
+            right = keyboard(39),
+            down = keyboard(40);
+
+        //Left arrow key `press` method
+        left.press = () => {
+            cat.vx = -5;
+            cat.vy = 0;
+        };
+
+        //Left arrow key `release` method
+        left.release = () => {
+            if (!right.isDown && cat.vy === 0) {
+                cat.vx = 0;
+            }
+        };
+
+        //Up
+        up.press = () => {
+            cat.vy = -5;
+            cat.vx = 0;
+        };
+        up.release = () => {
+            if (!down.isDown && cat.vx === 0) {
+                cat.vy = 0;
+            }
+        };
+
+        //Right
+        right.press = () => {
+            cat.vx = 5;
+            cat.vy = 0;
+        };
+        right.release = () => {
+            if (!left.isDown && cat.vy === 0) {
+                cat.vx = 0;
+            }
+        };
+
+        //Down
+        down.press = () => {
+            cat.vy = 5;
+            cat.vx = 0;
+        };
+        down.release = () => {
+            if (!up.isDown && cat.vx === 0) {
+                cat.vy = 0;
+            }
+        };
+
+        //Set the game state
+        state = play;
+
+        //Start the game loop
+        app.ticker.add((delta) => gameLoop(delta));
+    }
+
+    function gameLoop(delta) {
+        state(delta);
+    }
+
+    function play(delta) {
+        cat.x += cat.vx;
+        cat.y += cat.vy
+    }
+
+    //The `keyboard` helper function
+    function keyboard(keyCode) {
+        const key = {};
+        key.code = keyCode;
+        key.isDown = false;
+        key.isUp = true;
+        key.press = undefined;
+        key.release = undefined;
+        //The `downHandler`
+        key.downHandler = (event) => {
+            if (event.keyCode === key.code) {
+                if (key.isUp && key.press) {
+                    key.press();
+                }
+                key.isDown = true;
+                key.isUp = false;
+            }
+            event.preventDefault();
+        };
+
+        //The `upHandler`
+        key.upHandler = (event) => {
+            if (event.keyCode === key.code) {
+                if (key.isDown && key.release) {
+                    key.release();
+                }
+                key.isDown = false;
+                key.isUp = true;
+            }
+            event.preventDefault();
+        };
+
+        //Attach event listeners
+        window.addEventListener("keydown", key.downHandler.bind(key), false);
+        window.addEventListener("keyup", key.upHandler.bind(key), false);
+        return key;
+    }
+</script>
+</body>
+</html>
