@@ -1,3 +1,3 @@
 # Learning Pixi
 
-Source code repository for book [Learn Pixi.js](https://link.springer.com/book/10.1007/978-1-4842-1094-9)
+A step-by-step introduction to making games and interactive media with the [Pixi.js rendering engine](https://github.com/pixijs/pixijs).
