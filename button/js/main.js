@@ -12,6 +12,11 @@ Loader.shared
     .load(setup);
 
 function setup() {
+    createButtonWithTexture();
+    createDefaultButton();
+}
+
+function createButtonWithTexture() {
     const {resources} = Loader.shared;
 
     const defaultTexture = resources.default.texture;
@@ -22,47 +27,30 @@ function setup() {
         texture: defaultTexture
     });
 
-    button.addAction('pointerdown', onButtonDown);
-    button.addAction('pointerup', onButtonUp);
-    button.addAction('pointerupoutside', onButtonDown);
-    button.addAction('pointerover', onButtonOver);
-    button.addAction('pointerout', onButtonOut);
+    button.addAction('click', onButtonClick);
+
+    function onButtonClick() {
+        this.updateTexture(pressedTexture)
+    }
 
     app.stage.addChild(button);
+}
 
-    function onButtonDown() {
-        this.isdown = true;
-        this.texture = pressedTexture;
+function createDefaultButton() {
+
+    const button = new Button({
+        x: 200,
+        y: 200,
+        label: "Gore"
+    });
+
+    button.addAction('click', onButtonClick);
+
+    function onButtonClick() {
+        this.updateLabel('Click on button')
     }
 
-    function onButtonUp() {
-        this.isdown = false;
-        if (this.isOver) {
-            this.texture = hoverTexture;
-        } else {
-            this.texture = defaultTexture;
-        }
-    }
-
-    function onButtonOver() {
-        this.isOver = true;
-        if (this.isdown) {
-            return;
-        }
-        this.texture = hoverTexture;
-    }
-
-    function onButtonOut() {
-        this.isOver = false;
-        if (this.isdown) {
-            return;
-        }
-        this.texture = defaultTexture;
-    }
-
-
-
-
+    app.stage.addChild(button);
 }
 
 
